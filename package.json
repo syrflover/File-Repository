@@ -1,0 +1,43 @@
+{
+    "name": "file-repository",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "ts-node-dev src/main.ts"
+    },
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "@syrflover/fs": "0.0.4",
+        "busboy": "^0.3.1",
+        "dotenv": "^8.1.0",
+        "koa": "^2.10.0",
+        "koa-bodyparser": "^4.2.1",
+        "koa-logger": "^3.2.1",
+        "koa-router": "^7.4.0",
+        "koa-send": "^5.0.0",
+        "log4js": "^5.2.2",
+        "mime-types": "^2.1.24",
+        "pg": "^7.12.1",
+        "typedi": "^0.8.0",
+        "typeorm": "^0.2.19",
+        "typeorm-typedi-extensions": "^0.2.3"
+    },
+    "devDependencies": {
+        "@types/busboy": "^0.2.3",
+        "@types/dotenv": "^6.1.1",
+        "@types/koa": "^2.0.50",
+        "@types/koa-bodyparser": "^4.3.0",
+        "@types/koa-logger": "^3.1.1",
+        "@types/koa-router": "^7.0.42",
+        "@types/koa-send": "^4.1.2",
+        "@types/mime-types": "^2.1.0",
+        "@types/node": "^12.7.12",
+        "ts-node": "^8.4.1",
+        "ts-node-dev": "^1.0.0-pre.43",
+        "tslint": "^5.20.0",
+        "tslint-config-airbnb": "^5.11.2",
+        "typescript": "^3.6.4"
+    }
+}
