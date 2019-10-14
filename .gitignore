@@ -131,3 +131,6 @@ static/
 
 build/
 d.ts
+
+ormconfig.development.json
+ormconfig.json
