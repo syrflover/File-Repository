@@ -8,8 +8,9 @@ import File from '../entity/File';
 
 import { env } from '../env';
 import { catcher } from './lib/catcher';
+import { v1 } from './lib/RegURL';
 
-router.get(/\/v1\/.+\.[a-z]+/i, async (ctx) => {
+router.get(v1, async (ctx) => {
     const filepath = parseFilePathFromContext(ctx);
 
     const fileRepo = getRepository(File);
@@ -23,8 +24,10 @@ router.get(/\/v1\/.+\.[a-z]+/i, async (ctx) => {
         }
 
         await koaSend(ctx, path.join(env.BASE_PATH, file.path), {
-            setHeaders: (res) =>
-                res.setHeader('Content-Type', file.content_type),
+            setHeaders: (res) => {
+                res.setHeader('Content-Type', file.content_type);
+                res.setHeader('Content-Length', file.content_length);
+            },
         });
     } catch (error) {
         catcher(error, ctx);

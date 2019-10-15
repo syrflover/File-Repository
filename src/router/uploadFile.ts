@@ -11,8 +11,9 @@ import { env } from '../env';
 import { catcher } from './lib/catcher';
 import { parseFilePathFromContext } from '../lib/parseFilePathFromURL';
 import { busboy } from './lib/busboy';
+import { v1 } from './lib/RegURL';
 
-router.post(/\/v1\/.+\.[a-z]+/i, validate, async (ctx) => {
+router.post(v1, validate, async (ctx) => {
     const { filepath, contentType } = ctx.state;
 
     const fileRepo = getRepository(File);
