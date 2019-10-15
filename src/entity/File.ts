@@ -17,6 +17,9 @@ export default class File {
     @Column('varchar')
     public content_type!: string; // mime-types
 
+    @Column('int')
+    public content_length!: number;
+
     @CreateDateColumn()
     @Column('timestamptz')
     public created_at!: Date;

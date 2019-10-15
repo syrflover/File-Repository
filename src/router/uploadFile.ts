@@ -33,14 +33,16 @@ router.post(/\/v1\/.+\.[a-z]+/i, validate, async (ctx) => {
         const saveFilePath = path.join(env.BASE_PATH, filepath);
         const saveDirectory = path.dirname(saveFilePath);
 
-        logger.debug('\nsave_file_path =', saveFilePath);
-        logger.debug('\nsave_directory =', saveDirectory);
+        logger.debug('save_file_path =', saveFilePath);
+        logger.debug('save_directory =', saveDirectory);
 
-        logger.trace('fs.mkdir()');
         await fs.mkdir(saveDirectory, { recursive: true });
 
         // await fs.writeFile(saveFilePath, file);
-        await busboy(saveFilePath, ctx.req);
+        const { size } = await busboy(saveFilePath, ctx.req);
+        logger.debug('size =', size);
+
+        newFile.content_length = size;
 
         await fileRepo.save(newFile);
 
@@ -52,25 +54,30 @@ router.post(/\/v1\/.+\.[a-z]+/i, validate, async (ctx) => {
     }
 });
 
-const busboy = (savePath: string, req: IncomingMessage): Promise<void> =>
+const busboy = (
+    savePath: string,
+    req: IncomingMessage,
+): Promise<{ size: number }> =>
     new Promise((resolve, reject) => {
         const parser = new Busboy({ headers: req.headers });
 
+        let size = 0;
+
         parser.on('file', (fieldName, file, fileName, encoding, mimeType) => {
-            logger.debug(
-                '\nfield_name =',
-                fieldName,
-                '\nfile_name =',
-                fileName,
-                '\nencoding =',
-                encoding,
-                '\nmime_type =',
-                mimeType,
-            );
+            logger.debug('field_name =', fieldName);
+            logger.debug('file_name =', fileName);
+            logger.debug('encoding =', encoding);
+            logger.debug('mime_type =', mimeType);
+
+            file.on('data', (chunk: Buffer) => {
+                size += chunk.byteLength;
+            });
 
             parser.on('finish', () => {
                 logger.trace('parser end');
-                resolve();
+                resolve({
+                    size,
+                });
             });
 
             file.pipe(createWriteStream(savePath));
@@ -87,10 +94,10 @@ async function validate(ctx: Context, next: () => Promise<any>) {
     const filepath = parseFilePathFromContext(ctx);
     const contentType = mimetypes.lookup(filepath);
 
-    logger.debug('\nenv.BASE_PATH =', env.BASE_PATH);
-    logger.debug('\nfilepath =', filepath);
-    logger.debug('\ncontent-type =', contentType);
-    // logger.debug('\nctx.request.body =', ctx.request.body);
+    logger.debug('env.BASE_PATH =', env.BASE_PATH);
+    logger.debug('filepath =', filepath);
+    logger.debug('content-type =', contentType);
+    // logger.debug('ctx.request.body =', ctx.request.body);
 
     const fileRepo = getRepository(File);
 
