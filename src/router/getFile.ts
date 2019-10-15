@@ -22,8 +22,6 @@ router.get(/\/v1\/.+\.[a-z]+/i, async (ctx) => {
             return;
         }
 
-        ctx.response.set('Content-Type', file.content_type);
-
         await koaSend(ctx, path.join(env.BASE_PATH, file.path), {
             setHeaders: (res) =>
                 res.setHeader('Content-Type', file.content_type),

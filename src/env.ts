@@ -17,11 +17,9 @@ const getEnv = () => {
     return {
         ...process.env,
         BASE_PATH: path.join(process.env.BASE_PATH!),
-    } as IEnv;
+        PORT: parseInt(process.env.PORT || '30001', 10),
+        isDev: process.env.NODE_ENV === 'development',
+    } as any;
 };
 
-export const env = {
-    ...getEnv(),
-    PORT: parseInt(process.env.PORT || '30001', 10),
-    isDev: process.env.NODE_ENV === 'development',
-};
+export const env = getEnv();

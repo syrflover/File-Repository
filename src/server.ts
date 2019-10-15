@@ -13,7 +13,7 @@ app.use(koaLogger());
 
 app.use(
     koaBodyparser({
-        jsonLimit: '40mb',
+        formLimit: '100mb',
     }),
 );
 
