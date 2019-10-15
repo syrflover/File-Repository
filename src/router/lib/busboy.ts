@@ -10,22 +10,24 @@ export const busboy = (
     req: IncomingMessage,
 ): Promise<{ size: number }> =>
     new Promise((resolve, reject) => {
+        logger.trace(`busboy()`);
         const parser = new Busboy({ headers: req.headers });
 
         let size = 0;
 
         parser.on('file', (fieldName, file, fileName, encoding, mimeType) => {
+            logger.trace(`parser.on('file')`);
             logger.debug('field_name =', fieldName);
-            logger.debug('file_name =', fileName);
-            logger.debug('encoding =', encoding);
-            logger.debug('mime_type =', mimeType);
+            logger.debug('file_name  =', fileName);
+            logger.debug('encoding   =', encoding);
+            logger.debug('mime_type  =', mimeType);
 
             file.on('data', (chunk: Buffer) => {
                 size += chunk.byteLength;
             });
 
             parser.on('finish', () => {
-                logger.trace('parser end');
+                logger.trace(`parser.on('finish')`);
                 resolve({
                     size,
                 });
@@ -35,6 +37,7 @@ export const busboy = (
         });
 
         parser.on('error', (error: any) => {
+            logger.trace(`parser.on('error')`);
             reject(error);
         });
 

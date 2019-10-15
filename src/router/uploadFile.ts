@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as fs from '@syrflover/fs';
 import * as mimetypes from 'mime-types';
+import * as prettyBytes from 'pretty-bytes';
 import { getRepository } from 'typeorm';
 import { Context } from 'koa';
 
@@ -11,7 +12,7 @@ import { env } from '../env';
 import { catcher } from './lib/catcher';
 import { parseFilePathFromContext } from '../lib/parseFilePathFromURL';
 import { busboy } from './lib/busboy';
-import { v1 } from './lib/RegURL';
+import { v1 } from './lib/regURL';
 
 router.post(v1, validate, async (ctx) => {
     const { filepath, contentType } = ctx.state;
@@ -27,8 +28,6 @@ router.post(v1, validate, async (ctx) => {
     newFile.updated_at = now;
 
     try {
-        // const file = Buffer.from(ctx.request.body.data);
-
         const saveFilePath = path.join(env.BASE_PATH, filepath);
         const saveDirectory = path.dirname(saveFilePath);
 
@@ -37,17 +36,15 @@ router.post(v1, validate, async (ctx) => {
 
         await fs.mkdir(saveDirectory, { recursive: true });
 
-        // await fs.writeFile(saveFilePath, file);
         const { size } = await busboy(saveFilePath, ctx.req);
-        logger.debug('size =', size);
+        logger.debug('pretty size =', prettyBytes(size));
+        logger.debug('       size =', size);
 
         newFile.content_length = size;
 
         await fileRepo.save(newFile);
 
         ctx.status = 204;
-        // ctx.response.set('Content-Type', contentType);
-        // ctx.body = file;
     } catch (error) {
         catcher(error, ctx);
     }
@@ -58,8 +55,8 @@ async function validate(ctx: Context, next: () => Promise<any>) {
     const contentType = mimetypes.lookup(filepath);
 
     logger.debug('env.BASE_PATH =', env.BASE_PATH);
-    logger.debug('filepath =', filepath);
-    logger.debug('content-type =', contentType);
+    logger.debug('filepath      =', filepath);
+    logger.debug('content-type  =', contentType);
     // logger.debug('ctx.request.body =', ctx.request.body);
 
     const fileRepo = getRepository(File);

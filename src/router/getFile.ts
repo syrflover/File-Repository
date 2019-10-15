@@ -2,13 +2,13 @@ import * as path from 'path';
 import { router } from '../router';
 import { parseFilePathFromContext } from '../lib/parseFilePathFromURL';
 import { getRepository } from 'typeorm';
-import * as koaSend from 'koa-send';
 
 import File from '../entity/File';
 
 import { env } from '../env';
 import { catcher } from './lib/catcher';
-import { v1 } from './lib/RegURL';
+import { v1 } from './lib/regURL';
+import { serve } from './lib/serve';
 
 router.get(v1, async (ctx) => {
     const filepath = parseFilePathFromContext(ctx);
@@ -23,12 +23,7 @@ router.get(v1, async (ctx) => {
             return;
         }
 
-        await koaSend(ctx, path.join(env.BASE_PATH, file.path), {
-            setHeaders: (res) => {
-                res.setHeader('Content-Type', file.content_type);
-                res.setHeader('Content-Length', file.content_length);
-            },
-        });
+        await serve(ctx, path.join(env.BASE_PATH, file.path), file);
     } catch (error) {
         catcher(error, ctx);
     }
