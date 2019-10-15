@@ -1,19 +1,17 @@
 import * as path from 'path';
-import { createWriteStream } from 'fs';
 import * as fs from '@syrflover/fs';
 import * as mimetypes from 'mime-types';
-import * as Busboy from 'busboy';
+import { getRepository } from 'typeorm';
+import { Context } from 'koa';
+
 import { router } from '../router';
 import { logger } from '../logger';
 import File from '../entity/File';
-import { getRepository } from 'typeorm';
-import { Context } from 'koa';
 import { env } from '../env';
 import { catcher } from './lib/catcher';
 import { parseFilePathFromContext } from '../lib/parseFilePathFromURL';
-import { IncomingMessage } from 'http';
+import { busboy } from './lib/busboy';
 
-// TODO: implement multipart upload
 router.post(/\/v1\/.+\.[a-z]+/i, validate, async (ctx) => {
     const { filepath, contentType } = ctx.state;
 
@@ -53,42 +51,6 @@ router.post(/\/v1\/.+\.[a-z]+/i, validate, async (ctx) => {
         catcher(error, ctx);
     }
 });
-
-const busboy = (
-    savePath: string,
-    req: IncomingMessage,
-): Promise<{ size: number }> =>
-    new Promise((resolve, reject) => {
-        const parser = new Busboy({ headers: req.headers });
-
-        let size = 0;
-
-        parser.on('file', (fieldName, file, fileName, encoding, mimeType) => {
-            logger.debug('field_name =', fieldName);
-            logger.debug('file_name =', fileName);
-            logger.debug('encoding =', encoding);
-            logger.debug('mime_type =', mimeType);
-
-            file.on('data', (chunk: Buffer) => {
-                size += chunk.byteLength;
-            });
-
-            parser.on('finish', () => {
-                logger.trace('parser end');
-                resolve({
-                    size,
-                });
-            });
-
-            file.pipe(createWriteStream(savePath));
-        });
-
-        parser.on('error', (error: any) => {
-            reject(error);
-        });
-
-        req.pipe(parser);
-    });
 
 async function validate(ctx: Context, next: () => Promise<any>) {
     const filepath = parseFilePathFromContext(ctx);
