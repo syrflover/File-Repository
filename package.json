@@ -10,6 +10,8 @@
     "license": "MIT",
     "dependencies": {
         "@syrflover/fs": "0.0.4",
+        "@syrflover/of": "0.0.4",
+        "axios": "^0.19.0",
         "busboy": "^0.3.1",
         "dotenv": "^8.1.0",
         "koa": "^2.10.0",
