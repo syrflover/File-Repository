@@ -25,7 +25,7 @@ app.use(
 app.use(router.routes()).use(router.allowedMethods());
 
 async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
-    const [, error] = await of(
+    const [res, error] = await of(
         tokenValidate(ctx.request.headers.Authorization),
     );
 
@@ -40,11 +40,21 @@ async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
         return;
     }
 
+    // only developer
+    if (res.data.role <= 0) {
+        ctx.status = 403;
+        ctx.body = 'Permission Denied';
+        return;
+    }
+
     return next();
 }
 
 function tokenValidate(token: string) {
     return axios.get('https://api.madome.app/v2/auth/token', {
+        params: {
+            token_type: 'auth_code',
+        },
         headers: { Authorization: token },
     });
 }
