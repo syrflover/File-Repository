@@ -8,6 +8,7 @@ import * as koaLogger from 'koa-logger';
 import * as koaBodyparser from 'koa-bodyparser';
 
 import { router } from './router';
+import { env } from './env';
 
 const app = new Koa();
 export const server = http.createServer(app.callback());
@@ -25,6 +26,10 @@ app.use(
 app.use(router.routes()).use(router.allowedMethods());
 
 async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
+    if (env.NODE_ENV === 'development') {
+        return next();
+    }
+
     const [res, error] = await of(
         tokenValidate(ctx.request.headers.Authorization),
     );

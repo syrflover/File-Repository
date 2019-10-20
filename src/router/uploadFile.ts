@@ -15,7 +15,7 @@ import { busboy } from './lib/busboy';
 import { v1 } from './lib/regURL';
 
 router.post(v1, validate, async (ctx) => {
-    const { filepath, contentType } = ctx.state;
+    const { filepath, contentType, conflictFile } = ctx.state;
 
     const fileRepo = getRepository(File);
 
@@ -42,7 +42,11 @@ router.post(v1, validate, async (ctx) => {
 
         newFile.content_length = size;
 
-        await fileRepo.save(newFile);
+        if (conflictFile) {
+            await fileRepo.update({ path: filepath }, newFile);
+        } else {
+            await fileRepo.save(newFile);
+        }
 
         ctx.status = 204;
     } catch (error) {
@@ -61,12 +65,12 @@ async function validate(ctx: Context, next: () => Promise<any>) {
 
     const fileRepo = getRepository(File);
 
-    const conflictFile = await fileRepo.findOne({ path: filepath });
+    const conflictFile = !!(await fileRepo.findOne({ path: filepath }));
 
-    if (conflictFile) {
+    /* if (conflictFile) {
         ctx.status = 409;
         return;
-    }
+    } */
 
     if (!contentType) {
         ctx.status = 400;
@@ -76,6 +80,7 @@ async function validate(ctx: Context, next: () => Promise<any>) {
     ctx.state = {
         filepath,
         contentType,
+        conflictFile,
     };
 
     return next();
