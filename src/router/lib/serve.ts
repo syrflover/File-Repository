@@ -78,6 +78,9 @@ export const serve = async (
         ctx.set('Content-Encoding', 'gzip');
         ctx.res.removeHeader('Content-Length');
         encodingExt = '.gz';
+    } else if (!(await fs.exists(filePath))) {
+        ctx.status = 404;
+        return;
     }
 
     /* if (extensions && !/\.[^/]*$/.exec(path)) {
@@ -138,5 +141,5 @@ export const serve = async (
     // ctx.type = `${type}${encodingExt}`;
     ctx.body = createReadStream(filePath);
 
-    return filePath;
+    return;
 };
