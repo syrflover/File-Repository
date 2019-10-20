@@ -4,9 +4,10 @@ import { logger } from './logger';
 
 export interface IEnv extends NodeJS.ProcessEnv {
     BASE_PATH: string;
+    NODE_ENV: 'development' | 'production' | 'none';
 }
 
-const getEnv = () => {
+const getEnv = (): IEnv => {
     dotenv.config();
 
     if (!process.env.BASE_PATH) {
@@ -16,10 +17,10 @@ const getEnv = () => {
 
     return {
         ...process.env,
+        NODE_ENV: process.env.NODE_ENV || 'none',
+        PORT: process.env.PORT || '30001',
         BASE_PATH: path.join(process.env.BASE_PATH!),
-        PORT: parseInt(process.env.PORT || '30001', 10),
-        isDev: process.env.NODE_ENV === 'development',
-    } as any;
+    } as IEnv;
 };
 
 export const env = getEnv();

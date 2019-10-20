@@ -28,7 +28,7 @@ const main = async () => {
 
     server.on('error', (error) => logger.error('Server Error', error));
 
-    server.listen(PORT);
+    server.listen(parseInt(PORT!, 10));
 };
 
 main();
