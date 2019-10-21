@@ -9,6 +9,8 @@ import * as koaBodyparser from 'koa-bodyparser';
 
 import { router } from './router';
 import { env } from './env';
+import { logger } from './logger';
+import { checkLocalHost } from './lib/checkLocalHost';
 
 const app = new Koa();
 export const server = http.createServer(app.callback());
@@ -26,17 +28,35 @@ app.use(
 app.use(router.routes()).use(router.allowedMethods());
 
 async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
-    if (env.NODE_ENV === 'development') {
+    const remoteFamily = ctx.req.connection.remoteFamily;
+    const remoteAddress = ctx.req.connection.remoteAddress || '';
+
+    logger.debug('localAddress  =', ctx.req.connection.localAddress);
+    logger.debug('remoteAddress =', remoteAddress);
+    // logger.debug('localFamily =', ctx.req.connection.local)
+    logger.debug('remoteFamily  =', remoteFamily);
+    logger.debug('ctx.request.headers =', ctx.request.headers);
+
+    /* if (env.NODE_ENV === 'development') {
+        return next();
+    } */
+
+    const isLocal = await checkLocalHost(remoteAddress);
+    logger.debug('isLocal =', isLocal);
+
+    if (isLocal) {
         return next();
     }
 
-    const token = ctx.request.headers.Authorization || ctx.request.query.authorization;
+    const token =
+        ctx.request.headers.authorization ||
+        ctx.request.query.authorization ||
+        '';
 
-    const [res, error] = await of(
-        tokenValidate(token),
-    );
+    const [res, error] = await of(tokenValidate(token));
 
     if (error) {
+        // logger.error(error);
         if (error.response && error.response.status) {
             ctx.status = error.response.status;
             ctx.body = error.response.data || 'Unknown Error';
