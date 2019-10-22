@@ -9,9 +9,9 @@ import * as os from 'os';
 import { logger } from '../logger';
 const ifaces = os.networkInterfaces();
 
-export const checkLocalHost = (addr: string): Promise<boolean> =>
+export const checkInternalIP = (addr: string): Promise<boolean> =>
     new Promise((resolve, reject) => {
-        logger.trace('checkLocalHost()');
+        logger.trace('checkInternalIP()');
         // logger.debug('os.networkInterfaces() =', ifaces);
 
         dns.lookup(addr, (err, address) => {
@@ -19,7 +19,8 @@ export const checkLocalHost = (addr: string): Promise<boolean> =>
                 resolve(false);
                 return;
             }
-            const address_ = address.replace(/(f|:)/gi, '');
+            // const address_ = address.replace(/(f|:)/gi, '');
+            const address_ = address.replace(/[^.0-9]/gi, '');
             logger.debug('address  =', address);
             logger.debug('address_ =', address_);
 

@@ -10,7 +10,7 @@ import * as koaBodyparser from 'koa-bodyparser';
 import { router } from './router';
 import { env } from './env';
 import { logger } from './logger';
-import { checkLocalHost } from './lib/checkLocalHost';
+import { checkInternalIP } from './lib/checkInternalIP';
 
 const app = new Koa();
 export const server = http.createServer(app.callback());
@@ -41,7 +41,7 @@ async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
         return next();
     } */
 
-    const isLocal = await checkLocalHost(remoteAddress);
+    const isLocal = await checkInternalIP(remoteAddress);
     logger.debug('isLocal =', isLocal);
 
     if (isLocal) {
