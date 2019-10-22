@@ -4,7 +4,11 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "dev": "NODE_ENV=development LOG_LEVEL=trace ts-node-dev src/main.ts"
+        "start": "node build/main.js",
+        "start:forever": "forever stop \"file-repository\"; forever start --uid \"file-repository\" --append -l \"`pwd`/forever.log\" ./build/main.js",
+        "stop:forever": "forever stop \"file-repository\"",
+        "dev": "NODE_ENV=development LOG_LEVEL=trace ts-node-dev src/main.ts",
+        "build": "rm -rf ./build && tsc -p tsconfig.json"
     },
     "author": "",
     "license": "MIT",
@@ -37,6 +41,7 @@
         "@types/koa-send": "^4.1.2",
         "@types/mime-types": "^2.1.0",
         "@types/node": "^12.7.12",
+        "forever": "^1.0.0",
         "ts-node": "^8.4.1",
         "ts-node-dev": "^1.0.0-pre.43",
         "tslint": "^5.20.0",
