@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { router } from '../router';
-import { parseFilePathFromContext } from '../lib/parseFilePathFromURL';
+import { parseFilePathFromContext } from '../lib/parseFilePath';
 import { getRepository } from 'typeorm';
 
 import File from '../entity/File';

@@ -10,7 +10,7 @@ import { logger } from '../logger';
 import File from '../entity/File';
 import { env } from '../env';
 import { catcher } from './lib/catcher';
-import { parseFilePathFromContext } from '../lib/parseFilePathFromURL';
+import { parseFilePathFromContext } from '../lib/parseFilePath';
 import { busboy } from './lib/busboy';
 import { v1 } from './lib/regURL';
 

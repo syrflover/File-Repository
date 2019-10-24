@@ -14,3 +14,11 @@ export const parseFilePathFromContext = (ctx: Context) => {
         return r;
     }
 };
+
+export const parseFilePathFromString = (st: string) => {
+    const r = path
+        .join(`./${st}`)
+        .toLowerCase()
+        .trim();
+    return r;
+};
