@@ -8,7 +8,6 @@ import * as koaLogger from 'koa-logger';
 import * as koaBodyparser from 'koa-bodyparser';
 
 import { router } from './router';
-import { env } from './env';
 import { logger } from './logger';
 import { checkInternalIP } from './lib/checkInternalIP';
 
@@ -28,12 +27,12 @@ app.use(
 app.use(router.routes()).use(router.allowedMethods());
 
 async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
-    const remoteFamily = ctx.req.connection.remoteFamily;
-    const remoteAddress = ctx.req.connection.remoteAddress || '';
+    const remoteFamily = ctx.req.socket.remoteFamily;
+    const remoteAddress = ctx.req.socket.remoteAddress || '';
 
-    logger.debug('localAddress  =', ctx.req.connection.localAddress);
+    logger.debug('localAddress  =', ctx.req.socket.localAddress);
     logger.debug('remoteAddress =', remoteAddress);
-    // logger.debug('localFamily =', ctx.req.connection.local)
+    // logger.debug('localFamily =', ctx.req.socket.local)
     logger.debug('remoteFamily  =', remoteFamily);
     logger.debug('ctx.request.headers =', ctx.request.headers);
 
