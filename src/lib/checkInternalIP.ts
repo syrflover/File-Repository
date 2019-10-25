@@ -7,6 +7,7 @@
 import * as dns from 'dns';
 import * as os from 'os';
 import { logger } from '../logger';
+import { env } from '../env';
 const ifaces = os.networkInterfaces();
 
 export const checkInternalIP = (addr: string): Promise<boolean> =>
@@ -19,6 +20,8 @@ export const checkInternalIP = (addr: string): Promise<boolean> =>
                 resolve(false);
                 return;
             }
+
+            const internalIP = env.INTERNAL_IP.replace('*', '').trim();
             // const address_ = address.replace(/(f|:)/gi, '');
             const address_ = address.replace(/[^.0-9]/gi, '');
             logger.debug('address  =', address);
@@ -28,7 +31,9 @@ export const checkInternalIP = (addr: string): Promise<boolean> =>
                 for (const iface of ifaces[ifname]) {
                     if (
                         iface.address === address ||
-                        iface.address === address_
+                        iface.address === address_ ||
+                        address.startsWith(internalIP) ||
+                        address_.startsWith(internalIP)
                     ) {
                         resolve(true);
                         return;

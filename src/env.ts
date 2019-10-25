@@ -5,6 +5,7 @@ import { logger } from './logger';
 export interface IEnv extends NodeJS.ProcessEnv {
     BASE_PATH: string;
     NODE_ENV: 'development' | 'production' | 'none';
+    INTERNAL_IP: string;
 }
 
 const getEnv = (): IEnv => {
@@ -20,6 +21,7 @@ const getEnv = (): IEnv => {
         NODE_ENV: process.env.NODE_ENV || 'none',
         PORT: process.env.PORT || '30001',
         BASE_PATH: path.join(process.env.BASE_PATH!),
+        INTERNAL_IP: process.env.INTERNAL_IP || '',
     } as IEnv;
 };
 
