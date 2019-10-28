@@ -40,7 +40,7 @@ async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
         return next();
     } */
 
-    const isLocal = await checkInternalIP(remoteAddress);
+    const isLocal = await checkInternalIP(remoteAddress, true);
     logger.debug('isLocal =', isLocal);
 
     if (isLocal) {
