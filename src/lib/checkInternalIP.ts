@@ -33,10 +33,11 @@ export const checkInternalIP = (
             for (const ifname of Object.keys(ifaces)) {
                 for (const iface of ifaces[ifname]) {
                     if (onlyCheckENV) {
-                        return (
+                        const cond =
                             address.startsWith(internalIP) ||
-                            address_.startsWith(internalIP)
-                        );
+                            address_.startsWith(internalIP);
+                        resolve(cond);
+                        return;
                     }
 
                     if (
