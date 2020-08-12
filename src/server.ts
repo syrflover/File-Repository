@@ -52,7 +52,7 @@ async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
         ctx.request.query.authorization ||
         '';
 
-    const [res, error] = await of(tokenValidate(token));
+    const [res, error]: [r: any, err: any] = await of(tokenValidate(token)) as any;
 
     if (error) {
         // logger.error(error);
