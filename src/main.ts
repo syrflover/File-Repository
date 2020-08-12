@@ -1,5 +1,7 @@
 import './router.mod';
 
+import * as mimetypes from 'mime-types';
+
 import { server } from './server';
 import { logger } from './logger';
 import { createConnection } from 'typeorm';
@@ -10,13 +12,10 @@ const main = async () => {
     const { PORT } = env;
 
     try {
-        const p =
-            process.env.NODE_ENV === 'development'
-                ? '../ormconfig.development.json'
-                : '../ormconfig.json';
+        const p = process.env.NODE_ENV === 'development' ? '../ormconfig.development.json' : '../ormconfig.json';
         const ormconfig = (await import(p)) as PostgresConnectionOptions;
 
-        await createConnection(ormconfig);
+        await createConnection({ ...ormconfig });
     } catch (error) {
         logger.error(error);
         process.exit(1);
@@ -24,6 +23,8 @@ const main = async () => {
 
     server.on('listening', async () => {
         logger.info(`Listening on ${PORT}`);
+
+        mimetypes.types.m4s = 'video/iso.segment';
     });
 
     server.on('error', (error) => logger.error('Server Error', error));

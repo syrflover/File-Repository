@@ -10,10 +10,7 @@ import { logger } from '../logger';
 import { env } from '../env';
 const ifaces = os.networkInterfaces();
 
-export const checkInternalIP = (
-    addr: string,
-    onlyCheckENV: boolean,
-): Promise<boolean> =>
+export const checkInternalIP = (addr: string, onlyCheckENV: boolean): Promise<boolean> =>
     new Promise((resolve, reject) => {
         logger.trace('checkInternalIP()');
         // logger.debug('os.networkInterfaces() =', ifaces);
@@ -30,12 +27,15 @@ export const checkInternalIP = (
             logger.debug('address  =', address);
             logger.debug('address_ =', address_);
 
+            if (address_ === '127.0.0.1' || address_ === '1') {
+                resolve(true);
+                return;
+            }
+
             for (const ifname of Object.keys(ifaces)) {
                 for (const iface of ifaces[ifname]) {
                     if (onlyCheckENV) {
-                        const cond =
-                            address.startsWith(internalIP) ||
-                            address_.startsWith(internalIP);
+                        const cond = address.startsWith(internalIP) || address_.startsWith(internalIP);
                         resolve(cond);
                         return;
                     }
