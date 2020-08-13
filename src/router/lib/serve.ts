@@ -9,12 +9,14 @@
 /**
  * Module dependencies.
  */
+import type { Context } from 'koa';
 
 import * as fs from '@syrflover/fs';
 import { createReadStream } from 'fs';
 
 // import { normalize, basename, extname, resolve, parse, sep } from 'path';
-import { Context } from 'koa';
+
+import * as mimetypes from 'mime-types';
 
 import File from '../../entity/File';
 
@@ -28,11 +30,7 @@ interface ISendOptions {
 export const serve = async (
     ctx: Context,
     filePath: string,
-    {
-        content_length: size,
-        content_type: type,
-        updated_at: last_modified,
-    }: File,
+    { content_length: size, content_type: type_, updated_at: last_modified }: File,
     opts: ISendOptions = {},
 ) => {
     // options
@@ -41,6 +39,9 @@ export const serve = async (
     const immutable = opts.immutable || false;
     // const brotli = opts.brotli !== false;
     const gzip = opts.gzip !== false;
+
+    const charset = mimetypes.charset(type_);
+    const type = charset ? `${type_}; charset=${charset.toLowerCase()}` : type_;
 
     /* if (setHeaders && typeof setHeaders !== 'function') {
         throw new TypeError('option setHeaders must be function');
@@ -69,11 +70,7 @@ export const serve = async (
         encodingExt = '.br';
     } else */
 
-    if (
-        ctx.acceptsEncodings('gzip', 'identity') === 'gzip' &&
-        gzip &&
-        (await fs.exists(`${filePath}.gz`))
-    ) {
+    if (ctx.acceptsEncodings('gzip', 'identity') === 'gzip' && gzip && (await fs.exists(`${filePath}.gz`))) {
         filePath = `${filePath}.gz`;
         ctx.set('Content-Encoding', 'gzip');
         ctx.res.removeHeader('Content-Length');

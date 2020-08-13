@@ -5,10 +5,7 @@ import * as Busboy from 'busboy';
 
 import { logger } from '../../logger';
 
-export const busboy = (
-    savePath: string,
-    req: IncomingMessage,
-): Promise<{ size: number }> =>
+export const busboy = (savePath: string, req: IncomingMessage): Promise<{ size: number }> =>
     new Promise((resolve, reject) => {
         logger.trace(`busboy()`);
         const parser = new Busboy({ headers: req.headers });
