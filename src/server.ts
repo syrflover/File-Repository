@@ -47,7 +47,8 @@ async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
         return next();
     }
 
-    const token = ctx.request.headers.authorization || ctx.cookies.get('madome_token') || '';
+    const token =
+        ctx.request.headers.authorization || ctx.cookies.get('madome_token') || ctx.request.query.authorization || '';
 
     const [res, error] = (await of(tokenValidate(token))) as any;
 
