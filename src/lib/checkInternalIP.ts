@@ -22,6 +22,7 @@ export const checkInternalIP = (addr: string): Promise<boolean> =>
             }
 
             const rangeOfInternalIP = env.INTERNAL_IP.replace('*', '').trim();
+            const proxyIP = env.PROXY_IP;
             // const address_ = address.replace(/(f|:)/gi, '');
             const address_ = address.replace(/[^.0-9]/gi, '');
             logger.debug('address  =', address);
@@ -35,6 +36,11 @@ export const checkInternalIP = (addr: string): Promise<boolean> =>
             for (const ifname of Object.keys(ifaces)) {
                 for (const iface of ifaces[ifname]) {
                     logger.debug(iface.address, address, address_);
+
+                    if (address.startsWith(proxyIP) || address_.startsWith(proxyIP)) {
+                        resolve(false);
+                        return;
+                    }
 
                     if (address.startsWith(rangeOfInternalIP) || address_.startsWith(rangeOfInternalIP)) {
                         resolve(true);
