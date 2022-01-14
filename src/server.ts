@@ -36,18 +36,18 @@ async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
     logger.debug('remoteFamily  =', remoteFamily);
     logger.debug('ctx.request.headers =', ctx.request.headers);
 
-    /* if (env.NODE_ENV === 'development') {
-        return next();
-    } */
+    // if (env.NODE_ENV === 'development') {
+    //     return next();
+    // }
 
-    const isLocal = await checkInternalIP(remoteAddress, true);
+    const isLocal = await checkInternalIP(remoteAddress);
     logger.debug('isLocal =', isLocal);
 
     if (isLocal) {
         return next();
     }
 
-    const token = ctx.request.headers.authorization || ctx.request.query.authorization || '';
+    const token = ctx.request.headers.authorization || ctx.cookies.get('madome_token') || '';
 
     const [res, error] = (await of(tokenValidate(token))) as any;
 
