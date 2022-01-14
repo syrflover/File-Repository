@@ -23,7 +23,7 @@ router.get(v1, async (ctx) => {
             return;
         }
 
-        await serve(ctx, path.join(env.BASE_PATH, file.path), file);
+        await serve(ctx, path.join(env.BASE_PATH, file.path), file, { maxAge: 3600 * 24 * 14 });
     } catch (error) {
         catcher(error, ctx);
     }

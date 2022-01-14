@@ -125,11 +125,12 @@ export const serve = async (
     // stream
     ctx.response.set('Content-Length', `${size}`);
     ctx.response.set('Content-Type', `${type}${encodingExt}`);
+    // ctx.response.set('ETag', `W/"${}"`)
     if (!ctx.response.get('Last-Modified')) {
         ctx.set('Last-Modified', last_modified.toUTCString());
     }
     if (!ctx.response.get('Cache-Control')) {
-        const directives = [`max-age=${(maxage / 1000).toFixed(0)}`];
+        const directives = ['private', `max-age=${maxage.toFixed(0)}`];
         if (immutable) {
             directives.push('immutable');
         }
