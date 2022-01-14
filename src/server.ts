@@ -64,20 +64,22 @@ async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
     }
 
     // only developer
-    if (res.data.role <= 0) {
+    /* if (res.data.role <= 0) {
         ctx.status = 403;
         ctx.body = 'Permission Denied';
         return;
-    }
+    } */
 
     return next();
 }
 
 function tokenValidate(token: string) {
-    return axios.get('https://api.madome.app/v2/auth/token', {
-        params: {
-            token_type: 'auth_code',
-        },
-        headers: { Authorization: token },
-    });
+    return axios
+        .get('https://api.madome.app/v2/auth/token', {
+            params: {
+                token_type: 'auth_code',
+            },
+            headers: { Authorization: token },
+        })
+        .then((res) => res.status);
 }
