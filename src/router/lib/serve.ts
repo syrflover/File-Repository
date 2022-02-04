@@ -11,14 +11,16 @@
  */
 import type { Context } from 'koa';
 
-import * as fs from '@syrflover/fs';
-import { createReadStream } from 'fs';
+import { exists } from '@syrflover/fs';
+import { createReadStream, promises as fs } from 'fs';
 
 // import { normalize, basename, extname, resolve, parse, sep } from 'path';
 
 import * as mimetypes from 'mime-types';
+import * as sharp from 'sharp';
 
 import File from '../../entity/File';
+import { logger } from '../../logger';
 
 interface ISendOptions {
     maxage?: number;
@@ -38,7 +40,7 @@ export const serve = async (
     const maxage = opts.maxage || opts.maxAge || 0;
     const immutable = opts.immutable || false;
     // const brotli = opts.brotli !== false;
-    const gzip = opts.gzip !== false;
+    // const gzip = opts.gzip !== false;
 
     const charset = mimetypes.charset(type_);
     const type = charset ? `${type_}; charset=${charset.toLowerCase()}` : type_;
@@ -70,12 +72,14 @@ export const serve = async (
         encodingExt = '.br';
     } else */
 
-    if (ctx.acceptsEncodings('gzip', 'identity') === 'gzip' && gzip && (await fs.exists(`${filePath}.gz`))) {
+    /* if (ctx.acceptsEncodings('gzip', 'identity') === 'gzip' && gzip && (await fs.exists(`${filePath}.gz`))) {
         filePath = `${filePath}.gz`;
         ctx.set('Content-Encoding', 'gzip');
         ctx.res.removeHeader('Content-Length');
         encodingExt = '.gz';
-    } else if (!(await fs.exists(filePath))) {
+    } else */
+
+    if (!(await exists(filePath))) {
         ctx.status = 404;
         return;
     }
@@ -122,10 +126,6 @@ export const serve = async (
         throw err;
     } */
 
-    // stream
-    ctx.response.set('Content-Length', `${size}`);
-    ctx.response.set('Content-Type', `${type}${encodingExt}`);
-    // ctx.response.set('ETag', `W/"${}"`)
     if (!ctx.response.get('Last-Modified')) {
         ctx.set('Last-Modified', last_modified.toUTCString());
     }
@@ -136,8 +136,26 @@ export const serve = async (
         }
         ctx.set('Cache-Control', directives.join(','));
     }
-    // ctx.type = `${type}${encodingExt}`;
-    ctx.body = createReadStream(filePath);
 
-    return;
+    switch (type) {
+        case 'image/avif':
+            const buf = await sharp(await fs.readFile(filePath))
+                .webp()
+                .toBuffer();
+
+            ctx.response.set('Content-Length', `${buf.byteLength}`);
+            ctx.response.set('Content-Type', 'image/webp');
+
+            ctx.body = buf;
+            break;
+        default:
+            ctx.response.set('Content-Length', `${size}`);
+            ctx.response.set('Content-Type', `${type}`);
+
+            // ctx.response.set('ETag', `W/"${}"`)
+
+            // ctx.type = `${type}${encodingExt}`;
+            ctx.body = createReadStream(filePath);
+            break;
+    }
 };
