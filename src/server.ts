@@ -10,9 +10,39 @@ import * as koaBodyparser from 'koa-bodyparser';
 import { router } from './router';
 import { logger } from './logger';
 import { checkInternalIP } from './lib/checkInternalIP';
+import { env } from './env';
 
 const app = new Koa();
 export const server = http.createServer(app.callback());
+
+const authChecker: Koa.Middleware = async (ctx, next) => {
+    // const cookie = cookieParser(ctx.request.headers['cookie'] || '');
+
+    /* const accessToken = cookie.madome_access_token;
+    const refreshToken = cookie.madome_refresh_token; */
+
+    if (ctx.headers['x-madome-public-access']) {
+        return next();
+    }
+
+    const resp = await axios.patch(
+        `${env.MADOME_AUTH_URL}/auth/token`,
+        {},
+        {
+            headers: {
+                cookie: ctx.request.headers['cookie'] || '',
+            },
+            validateStatus: () => true,
+        },
+    );
+
+    if (resp.status === 200) {
+        return next();
+    }
+
+    ctx.status = resp.status;
+    ctx.body = resp.data;
+};
 
 app.use(koaLogger());
 
@@ -26,7 +56,7 @@ app.use(
 
 app.use(router.routes()).use(router.allowedMethods());
 
-async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
+/* async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
     const remoteFamily = ctx.req.socket.remoteFamily;
     const remoteAddress = ctx.req.socket.remoteAddress || '';
 
@@ -64,13 +94,6 @@ async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
         return;
     }
 
-    // only developer
-    /* if (res.data.role <= 0) {
-        ctx.status = 403;
-        ctx.body = 'Permission Denied';
-        return;
-    } */
-
     return next();
 }
 
@@ -84,3 +107,4 @@ function tokenValidate(token: string) {
         })
         .then((res) => res.status);
 }
+ */
