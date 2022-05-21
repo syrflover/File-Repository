@@ -21,16 +21,20 @@ const authChecker: Koa.Middleware = async (ctx, next) => {
     /* const accessToken = cookie.madome_access_token;
     const refreshToken = cookie.madome_refresh_token; */
 
-    if (ctx.headers['x-madome-public-access']) {
-        return next();
+    if (!('x-madome-2022' in ctx.headers)) {
+        return oldAuthChecker(ctx, next);
     }
+
+    /* if (!('x-madome-public-access' in ctx.headers)) {
+        return next();
+    } */
 
     const resp = await axios.patch(
         `${env.MADOME_AUTH_URL}/auth/token`,
         {},
         {
             headers: {
-                cookie: ctx.request.headers['cookie'] || '',
+                cookie: ctx.headers['cookie'] || '',
             },
             validateStatus: () => true,
         },
@@ -56,7 +60,7 @@ app.use(
 
 app.use(router.routes()).use(router.allowedMethods());
 
-/* async function authChecker(ctx: Koa.Context, next: () => Promise<any>) {
+async function oldAuthChecker(ctx: Koa.Context, next: () => Promise<any>) {
     const remoteFamily = ctx.req.socket.remoteFamily;
     const remoteAddress = ctx.req.socket.remoteAddress || '';
 
@@ -107,4 +111,3 @@ function tokenValidate(token: string) {
         })
         .then((res) => res.status);
 }
- */

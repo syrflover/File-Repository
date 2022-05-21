@@ -1,4 +1,6 @@
 import * as path from 'path';
+import * as fs from 'fs';
+
 import { router } from '../router';
 import { parseFilePathFromContext } from '../lib/parseFilePath';
 import { getRepository, Like } from 'typeorm';
@@ -10,6 +12,30 @@ import { catcher } from './lib/catcher';
 import { v1 } from './lib/regURL';
 import { serve } from './lib/serve';
 import { logger } from '../logger';
+
+/* const readFile = (p: string): Promise<Buffer> =>
+    new Promise((resolve, reject) => {
+        fs.readFile(p, (err, buf) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+
+            resolve(buf);
+        });
+    }); */
+
+const readDir = (p: string): Promise<string[]> =>
+    new Promise((resolve, reject) => {
+        fs.readdir(p, (err, xs) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+
+            resolve(xs);
+        });
+    });
 
 const extRegexp = /\.[a-z0-9]+$/i;
 
@@ -41,7 +67,27 @@ router.get(v1, async (ctx) => {
             return;
         }
 
-        await serve(ctx, path.join(env.BASE_PATH, file.path), file, { maxAge: 3600 * 24 * 14 });
+        const joinedFilePath = path.join(env.BASE_PATH, file.path);
+
+        if (
+            (file.path.endsWith('image_list') || file.path.endsWith('image_list.txt')) &&
+            'x-madome-2022' in ctx.headers
+        ) {
+            const imageList = (await readDir(path.dirname(joinedFilePath))).filter(
+                (x) => !x.endsWith('.txt') && !x.endsWith('image_list'),
+            );
+
+            if (imageList.length <= 0) {
+                ctx.status = 404;
+                return;
+            }
+
+            ctx.status = 200;
+            ctx.body = imageList;
+            return;
+        }
+
+        await serve(ctx, joinedFilePath, file, { maxAge: 3600 * 24 * 14 });
     } catch (error) {
         catcher(error, ctx);
     }
