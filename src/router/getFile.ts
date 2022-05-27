@@ -71,7 +71,7 @@ router.get(v1, async (ctx) => {
 
         if (
             (file.path.endsWith('image_list') || file.path.endsWith('image_list.txt')) &&
-            'x-madome-2022' in ctx.headers
+            ('x-madome-2022' in ctx.headers || 'madome-2022' in ctx.request.query)
         ) {
             const imageList = (await readDir(path.dirname(joinedFilePath))).filter(
                 (x) => !x.endsWith('.txt') && !x.endsWith('image_list'),
