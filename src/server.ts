@@ -21,7 +21,8 @@ const authChecker: Koa.Middleware = async (ctx, next) => {
     /* const accessToken = cookie.madome_access_token;
     const refreshToken = cookie.madome_refresh_token; */
 
-    if (!('x-madome-2022' in ctx.headers) || !('madome-2022' in ctx.request.query)) {
+    if (!('x-madome-2022' in ctx.headers) && !('madome-2022' in ctx.request.query)) {
+        // console.log('old auth', 'x-madome-2022' in ctx.headers, 'madome-2022' in ctx.request.query);
         return oldAuthChecker(ctx, next);
     }
 
